@@ -80,6 +80,9 @@ public class ByteReaderTest {
         assertThat("expected to read 0 bytes", count, is(0));
 
         count = reader.readUntil("xxx".getBytes(), buffer);
+        assertThat("expected eof", count, is(0));
+
+        count = reader.readUntil("xxx".getBytes(), buffer);
         assertThat("expected eof", count, is(-1));
     }
 
@@ -113,6 +116,20 @@ public class ByteReaderTest {
         } catch (IllegalStateException e) {
             // expected an illegal argument exception the second time - cannot recover from earlier exception
         }
+    }
+
+    @Test
+    public void should_read_entire_buffer_if_delimiter_not_found() throws IOException {
+        InputStream is = new ByteArrayInputStream("abcdef".getBytes());
+        ByteReader reader = new ByteReader(is, 4);
+        byte[] buffer = new byte[20];
+
+        int count = reader.readUntil("123".getBytes(), buffer);
+        assertThat("expected to read 6 bytes", count, is(6));
+        assertThat("expected buffer to contain 'abcdef'", buffer, startsWith("abcdef".getBytes()));
+
+        count = reader.readUntil("123".getBytes(), buffer);
+        assertThat("expected eof", count, is(-1));
     }
 
     public static Matcher<byte[]> startsWith(final byte[] prefix) {

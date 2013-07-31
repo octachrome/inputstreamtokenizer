@@ -35,7 +35,7 @@ public class ByteReader {
             }
         }
         int bytesRead = 0;
-        while (blockLength >= 0) {
+        while (blockLength > 0) {
             while (blockOffset < blockLength) {
                 if (matches(delimiter, blockOffset)) {
                     blockOffset += delimiter.length;
@@ -54,7 +54,12 @@ public class ByteReader {
             block = prefetch;
             prefetch = temp;
             prefetchLength = inputStream.read(prefetch);
-
+            if (prefetchLength < 0) {
+                prefetchLength = 0;
+            }
+            if (blockLength == 0) {
+                return bytesRead;
+            }
             blockOffset = 0;
         }
         return -1;
