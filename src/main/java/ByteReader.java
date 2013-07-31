@@ -9,6 +9,9 @@ public class ByteReader {
     private int blockLength;
     private int blockOffset;
 
+    private byte[] prefetch;
+    private int prefetchLength;
+
     public ByteReader(InputStream inputStream, int preferredReadSize) {
         this.inputStream = inputStream;
         this.preferredReadSize = preferredReadSize;
@@ -19,11 +22,17 @@ public class ByteReader {
             block = new byte[preferredReadSize];
             blockLength = inputStream.read(block);
             blockOffset = 0;
+
+            prefetch = new byte[preferredReadSize];
+            prefetchLength = inputStream.read(prefetch);
+            if (prefetchLength < 0) {
+                prefetchLength = 0;
+            }
         }
         int bytesRead = 0;
         while (blockLength >= 0) {
-            while (blockOffset < blockLength - delimiter.length + 1) {
-                if (matches(block, delimiter, blockOffset)) {
+            while (blockOffset < blockLength) {
+                if (matches(delimiter, blockOffset)) {
                     blockOffset += delimiter.length;
                     return bytesRead;
                 }
@@ -31,15 +40,21 @@ public class ByteReader {
                 bytesRead++;
                 blockOffset++;
             }
-            blockLength = inputStream.read(block);
+            blockLength = prefetchLength;
+            byte[] temp = block;
+            block = prefetch;
+            prefetch = temp;
+            prefetchLength = inputStream.read(prefetch);
+
             blockOffset = 0;
         }
         return -1;
     }
 
-    private boolean matches(byte[] block, byte[] delimiter, int offset) {
+    private boolean matches(byte[] delimiter, int offset) {
         for (int i = 0; i < delimiter.length; i++) {
-            if (block[offset + i] != delimiter[i]) {
+            byte b = offset + i < blockLength ? block[offset + i] : prefetch[offset + i - blockLength];
+            if (b != delimiter[i]) {
                 return false;
             }
         }
