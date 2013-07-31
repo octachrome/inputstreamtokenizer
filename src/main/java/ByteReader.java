@@ -3,43 +3,36 @@ import java.io.InputStream;
 
 public class ByteReader {
     private final InputStream inputStream;
-    private final int blockSize;
+    private final int preferredReadSize;
 
-    private int globalOffset;
     private byte[] block;
-    private int count;
-    private int offset;
+    private int blockLength;
+    private int blockOffset;
 
-    public ByteReader(InputStream inputStream, int blockSize) {
+    public ByteReader(InputStream inputStream, int preferredReadSize) {
         this.inputStream = inputStream;
-        this.blockSize = blockSize;
+        this.preferredReadSize = preferredReadSize;
     }
 
     public int readUntil(byte[] delimiter, byte[] buffer) throws IOException {
         if (block == null) {
-            block = new byte[blockSize];
-            count = inputStream.read(block);
-            globalOffset = 0;
-            offset = 0;
+            block = new byte[preferredReadSize];
+            blockLength = inputStream.read(block);
+            blockOffset = 0;
         }
-        int copyFrom = offset;
         int bytesRead = 0;
-        int bufferOffset = 0;
-        while (count >= 0) {
-            for (; offset < count - delimiter.length + 1; offset++) {
-                if (matches(block, delimiter, offset)) {
-                    System.arraycopy(block, copyFrom, buffer, bufferOffset, offset);
-                    offset += delimiter.length;
+        while (blockLength >= 0) {
+            while (blockOffset < blockLength - delimiter.length + 1) {
+                if (matches(block, delimiter, blockOffset)) {
+                    blockOffset += delimiter.length;
                     return bytesRead;
                 }
+                buffer[bytesRead] = block[blockOffset];
                 bytesRead++;
+                blockOffset++;
             }
-            System.arraycopy(block, 0, buffer, bufferOffset, count);
-            globalOffset += count;
-            bufferOffset += count;
-            count = inputStream.read(block);
-            offset = 0;
-            copyFrom = 0;
+            blockLength = inputStream.read(block);
+            blockOffset = 0;
         }
         return -1;
     }
