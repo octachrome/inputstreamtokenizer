@@ -12,12 +12,17 @@ public class ByteReader {
     private byte[] prefetch;
     private int prefetchLength;
 
+    private boolean invalid;
+
     public ByteReader(InputStream inputStream, int preferredReadSize) {
         this.inputStream = inputStream;
         this.preferredReadSize = preferredReadSize;
     }
 
     public int readUntil(byte[] delimiter, byte[] buffer) throws IOException {
+        if (invalid) {
+            throw new IllegalStateException("Cannot recover from earlier exception while reading");
+        }
         if (block == null) {
             block = new byte[preferredReadSize];
             blockLength = inputStream.read(block);
@@ -35,6 +40,10 @@ public class ByteReader {
                 if (matches(delimiter, blockOffset)) {
                     blockOffset += delimiter.length;
                     return bytesRead;
+                }
+                if (bytesRead >= buffer.length) {
+                    invalid = true;
+                    throw new IllegalArgumentException("Buffer is not big enough");
                 }
                 buffer[bytesRead] = block[blockOffset];
                 bytesRead++;

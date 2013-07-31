@@ -9,6 +9,7 @@ import java.io.InputStream;
 
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.fail;
 
 public class ByteReaderTest {
     @Test
@@ -91,6 +92,27 @@ public class ByteReaderTest {
         int count = reader.readUntil("xyz".getBytes(), buffer);
         assertThat("expected to read 3 bytes", count, is(3));
         assertThat("expected buffer to contain 'abc'", buffer, startsWith("abc".getBytes()));
+    }
+
+    @Test
+    public void should_throw_if_buffer_too_small() throws IOException {
+        InputStream is = new ByteArrayInputStream("abcxyzabc".getBytes());
+        ByteReader reader = new ByteReader(is, 4);
+        byte[] buffer = new byte[2];
+
+        try {
+            reader.readUntil("xyz".getBytes(), buffer);
+            fail("expected an exception");
+        } catch (IllegalArgumentException e) {
+            // expected an illegal argument exception the first time - buffer not big enough
+        }
+
+        try {
+            reader.readUntil("xyz".getBytes(), buffer);
+            fail("expected another exception");
+        } catch (IllegalStateException e) {
+            // expected an illegal argument exception the second time - cannot recover from earlier exception
+        }
     }
 
     public static Matcher<byte[]> startsWith(final byte[] prefix) {
