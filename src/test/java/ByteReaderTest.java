@@ -66,6 +66,22 @@ public class ByteReaderTest {
         assertThat("expected buffer to contain 'abc'", buffer, startsWith("abc".getBytes()));
     }
 
+    @Test
+    public void should_find_sequence_overlapping_itself() throws IOException {
+        InputStream is = new ByteArrayInputStream("xxxxxx".getBytes());
+        ByteReader reader = new ByteReader(is, 1024);
+        byte[] buffer = new byte[20];
+
+        int count = reader.readUntil("xxx".getBytes(), buffer);
+        assertThat("expected to read 0 bytes", count, is(0));
+
+        count = reader.readUntil("xxx".getBytes(), buffer);
+        assertThat("expected to read 0 bytes", count, is(0));
+
+        count = reader.readUntil("xxx".getBytes(), buffer);
+        assertThat("expected eof", count, is(-1));
+    }
+
     public static Matcher<byte[]> startsWith(final byte[] prefix) {
         return new BaseMatcher<byte[]>() {
             @Override
