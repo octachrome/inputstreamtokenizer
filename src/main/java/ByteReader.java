@@ -9,7 +9,7 @@ public class ByteReader {
     private int blockLength;
     private int blockOffset;
 
-    private byte[] prefetch;
+    private byte[] prefetchBlock;
     private int prefetchLength;
 
     private boolean invalid;
@@ -25,14 +25,11 @@ public class ByteReader {
         }
         if (block == null) {
             block = new byte[preferredReadSize];
-            blockLength = inputStream.read(block);
-            blockOffset = 0;
-
-            prefetch = new byte[preferredReadSize];
-            prefetchLength = inputStream.read(prefetch);
-            if (prefetchLength < 0) {
-                prefetchLength = 0;
-            }
+            prefetchBlock = new byte[preferredReadSize];
+            // load the prefetch block
+            nextBlock();
+            // make the prefetch block the active block
+            nextBlock();
         }
         int bytesRead = 0;
         while (blockLength > 0) {
@@ -49,25 +46,31 @@ public class ByteReader {
                 bytesRead++;
                 blockOffset++;
             }
-            blockLength = prefetchLength;
-            byte[] temp = block;
-            block = prefetch;
-            prefetch = temp;
-            prefetchLength = inputStream.read(prefetch);
-            if (prefetchLength < 0) {
-                prefetchLength = 0;
-            }
+            nextBlock();
             if (blockLength == 0) {
                 return bytesRead;
             }
-            blockOffset = 0;
         }
         return -1;
     }
 
+    private void nextBlock() throws IOException {
+        byte[] temp = block;
+        block = prefetchBlock;
+        prefetchBlock = temp;
+
+        blockLength = prefetchLength;
+        prefetchLength = inputStream.read(prefetchBlock);
+        if (prefetchLength < 0) {
+            prefetchLength = 0;
+        }
+
+        blockOffset = 0;
+    }
+
     private boolean matches(byte[] delimiter, int offset) {
         for (int i = 0; i < delimiter.length; i++) {
-            byte b = offset + i < blockLength ? block[offset + i] : prefetch[offset + i - blockLength];
+            byte b = offset + i < blockLength ? block[offset + i] : prefetchBlock[offset + i - blockLength];
             if (b != delimiter[i]) {
                 return false;
             }

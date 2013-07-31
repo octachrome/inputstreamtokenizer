@@ -80,7 +80,7 @@ public class ByteReaderTest {
         assertThat("expected to read 0 bytes", count, is(0));
 
         count = reader.readUntil("xxx".getBytes(), buffer);
-        assertThat("expected eof", count, is(0));
+        assertThat("expected to read 0 bytes (until end of stream)", count, is(0));
 
         count = reader.readUntil("xxx".getBytes(), buffer);
         assertThat("expected eof", count, is(-1));
@@ -88,7 +88,7 @@ public class ByteReaderTest {
 
     @Test
     public void should_find_sequence_overlapping_block_boundary() throws IOException {
-        InputStream is = new ByteArrayInputStream("abcxyzabc".getBytes());
+        InputStream is = new ByteArrayInputStream("abcxyzdef".getBytes());
         ByteReader reader = new ByteReader(is, 4);
         byte[] buffer = new byte[20];
 
