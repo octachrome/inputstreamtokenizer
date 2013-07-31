@@ -87,6 +87,26 @@ public class ByteReaderTest {
     }
 
     @Test
+    public void should_find_sequence_overlapping_itself_and_block_boundary() throws IOException {
+        InputStream is = new ByteArrayInputStream("xxxxxxxx".getBytes());
+        ByteReader reader = new ByteReader(is, 4);
+        byte[] buffer = new byte[20];
+
+        int count = reader.readUntil("xxx".getBytes(), buffer);
+        assertThat("expected to read 0 bytes", count, is(0));
+
+        count = reader.readUntil("xxx".getBytes(), buffer);
+        assertThat("expected to read 0 bytes", count, is(0));
+
+        count = reader.readUntil("xxx".getBytes(), buffer);
+        assertThat("expected to read 2 bytes (until end of stream)", count, is(2));
+        assertThat("expected buffer to contain 'xx'", buffer, startsWith("xx".getBytes()));
+
+        count = reader.readUntil("xxx".getBytes(), buffer);
+        assertThat("expected eof", count, is(-1));
+    }
+
+    @Test
     public void should_find_sequence_overlapping_block_boundary() throws IOException {
         InputStream is = new ByteArrayInputStream("abcxyzdef".getBytes());
         ByteReader reader = new ByteReader(is, 4);
@@ -95,6 +115,10 @@ public class ByteReaderTest {
         int count = reader.readUntil("xyz".getBytes(), buffer);
         assertThat("expected to read 3 bytes", count, is(3));
         assertThat("expected buffer to contain 'abc'", buffer, startsWith("abc".getBytes()));
+
+        count = reader.readUntil("xyz".getBytes(), buffer);
+        assertThat("expected to read 3 bytes", count, is(3));
+        assertThat("expected buffer to contain 'def'", buffer, startsWith("def".getBytes()));
     }
 
     @Test

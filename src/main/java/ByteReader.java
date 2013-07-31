@@ -35,7 +35,13 @@ public class ByteReader {
         while (blockLength > 0) {
             while (blockOffset < blockLength) {
                 if (matches(delimiter, blockOffset)) {
+                    // advance past the delimiter
                     blockOffset += delimiter.length;
+                    if (blockOffset > blockLength) {
+                        int offset = blockOffset - blockLength;
+                        nextBlock();
+                        blockOffset = offset;
+                    }
                     return bytesRead;
                 }
                 if (bytesRead >= buffer.length) {
@@ -70,7 +76,15 @@ public class ByteReader {
 
     private boolean matches(byte[] delimiter, int offset) {
         for (int i = 0; i < delimiter.length; i++) {
-            byte b = offset + i < blockLength ? block[offset + i] : prefetchBlock[offset + i - blockLength];
+            byte b;
+            if (offset + i < blockLength) {
+                b = block[offset + i];
+            } else if (offset + i - blockLength < prefetchLength) {
+                b = prefetchBlock[offset + i - blockLength];
+            } else {
+                // buffers exhausted
+                return false;
+            }
             if (b != delimiter[i]) {
                 return false;
             }
