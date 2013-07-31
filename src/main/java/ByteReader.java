@@ -2,24 +2,46 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class ByteReader {
-    private InputStream inputStream;
+    private final InputStream inputStream;
     private final int blockSize;
 
-    public ByteReader(InputStream inputStream) {
+    private int globalOffset;
+    private byte[] block;
+    private int count;
+    private int offset;
+
+    public ByteReader(InputStream inputStream, int blockSize) {
         this.inputStream = inputStream;
-        this.blockSize = 1024;
+        this.blockSize = blockSize;
     }
 
     public int readUntil(byte[] delimiter, byte[] buffer) throws IOException {
-        byte[] block = new byte[blockSize];
-        int count = inputStream.read(block);
-        for (int offset = 0; offset < count - delimiter.length; offset++) {
-            if (matches(block, delimiter, offset)) {
-                System.arraycopy(block, 0, buffer, 0, offset);
-                return offset;
-            }
+        if (block == null) {
+            block = new byte[blockSize];
+            count = inputStream.read(block);
+            globalOffset = 0;
+            offset = 0;
         }
-        return 0;
+        int copyFrom = offset;
+        int bytesRead = 0;
+        int bufferOffset = 0;
+        while (count >= 0) {
+            for (; offset < count - delimiter.length + 1; offset++) {
+                if (matches(block, delimiter, offset)) {
+                    System.arraycopy(block, copyFrom, buffer, bufferOffset, offset);
+                    offset += delimiter.length;
+                    return bytesRead;
+                }
+                bytesRead++;
+            }
+            System.arraycopy(block, 0, buffer, bufferOffset, count);
+            globalOffset += count;
+            bufferOffset += count;
+            count = inputStream.read(block);
+            offset = 0;
+            copyFrom = 0;
+        }
+        return -1;
     }
 
     private boolean matches(byte[] block, byte[] delimiter, int offset) {

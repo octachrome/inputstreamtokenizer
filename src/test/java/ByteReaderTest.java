@@ -12,13 +12,58 @@ import static org.hamcrest.CoreMatchers.*;
 
 public class ByteReaderTest {
     @Test
-    public void test_stuff() throws IOException {
+    public void should_find_sequence_mid_block() throws IOException {
         InputStream is = new ByteArrayInputStream("testxabc".getBytes());
-        ByteReader reader = new ByteReader(is);
+        ByteReader reader = new ByteReader(is, 1024);
         byte[] buffer = new byte[20];
         int count = reader.readUntil("x".getBytes(), buffer);
         assertThat("expected to read 4 bytes", count, is(4));
         assertThat("expected buffer to contain 'test'", buffer, startsWith("test".getBytes()));
+    }
+
+    @Test
+    public void should_find_sequence_at_block_end() throws IOException {
+        InputStream is = new ByteArrayInputStream("tesxtabc".getBytes());
+        ByteReader reader = new ByteReader(is, 4);
+        byte[] buffer = new byte[20];
+        int count = reader.readUntil("x".getBytes(), buffer);
+        assertThat("expected to read 3 bytes", count, is(3));
+        assertThat("expected buffer to contain 'tes'", buffer, startsWith("tes".getBytes()));
+    }
+
+    @Test
+    public void should_find_sequence_at_second_block_start() throws IOException {
+        InputStream is = new ByteArrayInputStream("testxabc".getBytes());
+        ByteReader reader = new ByteReader(is, 4);
+        byte[] buffer = new byte[20];
+        int count = reader.readUntil("x".getBytes(), buffer);
+        assertThat("expected to read 4 bytes", count, is(4));
+        assertThat("expected buffer to contain 'test'", buffer, startsWith("test".getBytes()));
+    }
+
+    @Test
+    public void should_find_sequence_at_second_block_end() throws IOException {
+        InputStream is = new ByteArrayInputStream("testabcx".getBytes());
+        ByteReader reader = new ByteReader(is, 4);
+        byte[] buffer = new byte[20];
+        int count = reader.readUntil("x".getBytes(), buffer);
+        assertThat("expected to read 7 bytes", count, is(7));
+        assertThat("expected buffer to contain 'testabc'", buffer, startsWith("testabc".getBytes()));
+    }
+
+    @Test
+    public void should_find_sequence_twice_within_block() throws IOException {
+        InputStream is = new ByteArrayInputStream("testxabcx".getBytes());
+        ByteReader reader = new ByteReader(is, 1024);
+        byte[] buffer = new byte[20];
+
+        int count = reader.readUntil("x".getBytes(), buffer);
+        assertThat("expected to read 4 bytes", count, is(4));
+        assertThat("expected buffer to contain 'test'", buffer, startsWith("test".getBytes()));
+
+        count = reader.readUntil("x".getBytes(), buffer);
+        assertThat("expected to read 3 bytes", count, is(3));
+        assertThat("expected buffer to contain 'abc'", buffer, startsWith("abc".getBytes()));
     }
 
     public static Matcher<byte[]> startsWith(final byte[] prefix) {
