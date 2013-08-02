@@ -19,7 +19,7 @@ public class InputStreamTokenizerTest {
         InputStream is = new ByteArrayInputStream("testxabc".getBytes());
         InputStreamTokenizer reader = new InputStreamTokenizer(is);
         byte[] buffer = new byte[20];
-        int count = reader.readUntil("test".getBytes(), buffer);
+        int count = reader.readNext("test".getBytes(), buffer);
         assertThat("expected to read 0 bytes", count, is(0));
     }
 
@@ -29,11 +29,11 @@ public class InputStreamTokenizerTest {
         InputStreamTokenizer reader = new InputStreamTokenizer(is);
         byte[] buffer = new byte[20];
 
-        int count = reader.readUntil("abc".getBytes(), buffer);
+        int count = reader.readNext("abc".getBytes(), buffer);
         assertThat("expected to read 4 bytes", count, is(4));
         assertThat("expected buffer to contain 'test'", buffer, startsWith("test".getBytes()));
 
-        count = reader.readUntil("abc".getBytes(), buffer);
+        count = reader.readNext("abc".getBytes(), buffer);
         assertThat("expected eof", count, is(-1));
     }
 
@@ -42,7 +42,7 @@ public class InputStreamTokenizerTest {
         InputStream is = new ByteArrayInputStream("testxabc".getBytes());
         InputStreamTokenizer reader = new InputStreamTokenizer(is);
         byte[] buffer = new byte[20];
-        int count = reader.readUntil("x".getBytes(), buffer);
+        int count = reader.readNext("x".getBytes(), buffer);
         assertThat("expected to read 4 bytes", count, is(4));
         assertThat("expected buffer to contain 'test'", buffer, startsWith("test".getBytes()));
     }
@@ -52,7 +52,7 @@ public class InputStreamTokenizerTest {
         InputStream is = new ByteArrayInputStream("tesxtabc".getBytes());
         InputStreamTokenizer reader = new InputStreamTokenizer(is, 4);
         byte[] buffer = new byte[20];
-        int count = reader.readUntil("x".getBytes(), buffer);
+        int count = reader.readNext("x".getBytes(), buffer);
         assertThat("expected to read 3 bytes", count, is(3));
         assertThat("expected buffer to contain 'tes'", buffer, startsWith("tes".getBytes()));
     }
@@ -62,7 +62,7 @@ public class InputStreamTokenizerTest {
         InputStream is = new ByteArrayInputStream("testxabc".getBytes());
         InputStreamTokenizer reader = new InputStreamTokenizer(is, 4);
         byte[] buffer = new byte[20];
-        int count = reader.readUntil("x".getBytes(), buffer);
+        int count = reader.readNext("x".getBytes(), buffer);
         assertThat("expected to read 4 bytes", count, is(4));
         assertThat("expected buffer to contain 'test'", buffer, startsWith("test".getBytes()));
     }
@@ -72,7 +72,7 @@ public class InputStreamTokenizerTest {
         InputStream is = new ByteArrayInputStream("testabcx".getBytes());
         InputStreamTokenizer reader = new InputStreamTokenizer(is, 4);
         byte[] buffer = new byte[20];
-        int count = reader.readUntil("x".getBytes(), buffer);
+        int count = reader.readNext("x".getBytes(), buffer);
         assertThat("expected to read 7 bytes", count, is(7));
         assertThat("expected buffer to contain 'testabc'", buffer, startsWith("testabc".getBytes()));
     }
@@ -83,11 +83,11 @@ public class InputStreamTokenizerTest {
         InputStreamTokenizer reader = new InputStreamTokenizer(is);
         byte[] buffer = new byte[20];
 
-        int count = reader.readUntil("x".getBytes(), buffer);
+        int count = reader.readNext("x".getBytes(), buffer);
         assertThat("expected to read 4 bytes", count, is(4));
         assertThat("expected buffer to contain 'test'", buffer, startsWith("test".getBytes()));
 
-        count = reader.readUntil("x".getBytes(), buffer);
+        count = reader.readNext("x".getBytes(), buffer);
         assertThat("expected to read 3 bytes", count, is(3));
         assertThat("expected buffer to contain 'abc'", buffer, startsWith("abc".getBytes()));
     }
@@ -98,16 +98,16 @@ public class InputStreamTokenizerTest {
         InputStreamTokenizer reader = new InputStreamTokenizer(is);
         byte[] buffer = new byte[20];
 
-        int count = reader.readUntil("xxx".getBytes(), buffer);
+        int count = reader.readNext("xxx".getBytes(), buffer);
         assertThat("expected to read 0 bytes", count, is(0));
 
-        count = reader.readUntil("xxx".getBytes(), buffer);
+        count = reader.readNext("xxx".getBytes(), buffer);
         assertThat("expected to read 0 bytes", count, is(0));
 
-        count = reader.readUntil("xxx".getBytes(), buffer);
+        count = reader.readNext("xxx".getBytes(), buffer);
         assertThat("expected to read 0 bytes (until end of stream)", count, is(0));
 
-        count = reader.readUntil("xxx".getBytes(), buffer);
+        count = reader.readNext("xxx".getBytes(), buffer);
         assertThat("expected eof", count, is(-1));
     }
 
@@ -117,17 +117,17 @@ public class InputStreamTokenizerTest {
         InputStreamTokenizer reader = new InputStreamTokenizer(is, 4);
         byte[] buffer = new byte[20];
 
-        int count = reader.readUntil("xxx".getBytes(), buffer);
+        int count = reader.readNext("xxx".getBytes(), buffer);
         assertThat("expected to read 0 bytes", count, is(0));
 
-        count = reader.readUntil("xxx".getBytes(), buffer);
+        count = reader.readNext("xxx".getBytes(), buffer);
         assertThat("expected to read 0 bytes", count, is(0));
 
-        count = reader.readUntil("xxx".getBytes(), buffer);
+        count = reader.readNext("xxx".getBytes(), buffer);
         assertThat("expected to read 2 bytes (until end of stream)", count, is(2));
         assertThat("expected buffer to contain 'xx'", buffer, startsWith("xx".getBytes()));
 
-        count = reader.readUntil("xxx".getBytes(), buffer);
+        count = reader.readNext("xxx".getBytes(), buffer);
         assertThat("expected eof", count, is(-1));
     }
 
@@ -137,11 +137,11 @@ public class InputStreamTokenizerTest {
         InputStreamTokenizer reader = new InputStreamTokenizer(is, 4);
         byte[] buffer = new byte[20];
 
-        int count = reader.readUntil("xyz".getBytes(), buffer);
+        int count = reader.readNext("xyz".getBytes(), buffer);
         assertThat("expected to read 3 bytes", count, is(3));
         assertThat("expected buffer to contain 'abc'", buffer, startsWith("abc".getBytes()));
 
-        count = reader.readUntil("xyz".getBytes(), buffer);
+        count = reader.readNext("xyz".getBytes(), buffer);
         assertThat("expected to read 3 bytes", count, is(3));
         assertThat("expected buffer to contain 'def'", buffer, startsWith("def".getBytes()));
     }
@@ -153,14 +153,14 @@ public class InputStreamTokenizerTest {
         byte[] buffer = new byte[2];
 
         try {
-            reader.readUntil("xyz".getBytes(), buffer);
+            reader.readNext("xyz".getBytes(), buffer);
             fail("expected an exception");
         } catch (IllegalArgumentException e) {
             // expected an illegal argument exception the first time - buffer not big enough
         }
 
         try {
-            reader.readUntil("xyz".getBytes(), buffer);
+            reader.readNext("xyz".getBytes(), buffer);
             fail("expected another exception");
         } catch (IllegalStateException e) {
             // expected an illegal argument exception the second time - cannot recover from earlier exception
@@ -173,11 +173,11 @@ public class InputStreamTokenizerTest {
         InputStreamTokenizer reader = new InputStreamTokenizer(is, 4);
         byte[] buffer = new byte[20];
 
-        int count = reader.readUntil("123".getBytes(), buffer);
+        int count = reader.readNext("123".getBytes(), buffer);
         assertThat("expected to read 6 bytes", count, is(6));
         assertThat("expected buffer to contain 'abcdef'", buffer, startsWith("abcdef".getBytes()));
 
-        count = reader.readUntil("123".getBytes(), buffer);
+        count = reader.readNext("123".getBytes(), buffer);
         assertThat("expected eof", count, is(-1));
     }
 
@@ -186,11 +186,11 @@ public class InputStreamTokenizerTest {
         InputStream is = new ByteArrayInputStream("abcxdef".getBytes());
         InputStreamTokenizer reader = new InputStreamTokenizer(is);
 
-        int count = reader.readUntil("x".getBytes(), null);
+        int count = reader.readNext("x".getBytes(), null);
         assertThat("expected to read 3 bytes", count, is(3));
 
         byte[] buffer = new byte[20];
-        count = reader.readUntil("x".getBytes(), buffer);
+        count = reader.readNext("x".getBytes(), buffer);
         assertThat("expected to read 3 bytes", count, is(3));
         assertThat("expected buffer to contain 'def'", buffer, startsWith("def".getBytes()));
     }
