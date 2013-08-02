@@ -24,7 +24,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
-        <module name="bytereader" />
+        <module name="inputstreamtokenizer" />
       </profile>
     </annotationProcessing>
   </component>

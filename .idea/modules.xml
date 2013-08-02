@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/bytereader.iml" filepath="$PROJECT_DIR$/bytereader.iml" />
+      <module fileurl="file://$PROJECT_DIR$/inputstreamtokenizer.iml" filepath="$PROJECT_DIR$/inputstreamtokenizer.iml" />
     </modules>
   </component>
 </project>

@@ -1,3 +1,5 @@
+package net.thebrown.io;
+
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -11,11 +13,11 @@ import static org.junit.Assert.assertThat;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.fail;
 
-public class ByteReaderTest {
+public class InputStreamTokenizerTest {
     @Test
     public void should_find_sequence_mid_block() throws IOException {
         InputStream is = new ByteArrayInputStream("testxabc".getBytes());
-        ByteReader reader = new ByteReader(is, 1024);
+        InputStreamTokenizer reader = new InputStreamTokenizer(is, 1024);
         byte[] buffer = new byte[20];
         int count = reader.readUntil("x".getBytes(), buffer);
         assertThat("expected to read 4 bytes", count, is(4));
@@ -25,7 +27,7 @@ public class ByteReaderTest {
     @Test
     public void should_find_sequence_at_block_end() throws IOException {
         InputStream is = new ByteArrayInputStream("tesxtabc".getBytes());
-        ByteReader reader = new ByteReader(is, 4);
+        InputStreamTokenizer reader = new InputStreamTokenizer(is, 4);
         byte[] buffer = new byte[20];
         int count = reader.readUntil("x".getBytes(), buffer);
         assertThat("expected to read 3 bytes", count, is(3));
@@ -35,7 +37,7 @@ public class ByteReaderTest {
     @Test
     public void should_find_sequence_at_second_block_start() throws IOException {
         InputStream is = new ByteArrayInputStream("testxabc".getBytes());
-        ByteReader reader = new ByteReader(is, 4);
+        InputStreamTokenizer reader = new InputStreamTokenizer(is, 4);
         byte[] buffer = new byte[20];
         int count = reader.readUntil("x".getBytes(), buffer);
         assertThat("expected to read 4 bytes", count, is(4));
@@ -45,7 +47,7 @@ public class ByteReaderTest {
     @Test
     public void should_find_sequence_at_second_block_end() throws IOException {
         InputStream is = new ByteArrayInputStream("testabcx".getBytes());
-        ByteReader reader = new ByteReader(is, 4);
+        InputStreamTokenizer reader = new InputStreamTokenizer(is, 4);
         byte[] buffer = new byte[20];
         int count = reader.readUntil("x".getBytes(), buffer);
         assertThat("expected to read 7 bytes", count, is(7));
@@ -55,7 +57,7 @@ public class ByteReaderTest {
     @Test
     public void should_find_sequence_twice_within_block() throws IOException {
         InputStream is = new ByteArrayInputStream("testxabcx".getBytes());
-        ByteReader reader = new ByteReader(is, 1024);
+        InputStreamTokenizer reader = new InputStreamTokenizer(is, 1024);
         byte[] buffer = new byte[20];
 
         int count = reader.readUntil("x".getBytes(), buffer);
@@ -70,7 +72,7 @@ public class ByteReaderTest {
     @Test
     public void should_find_sequence_overlapping_itself() throws IOException {
         InputStream is = new ByteArrayInputStream("xxxxxx".getBytes());
-        ByteReader reader = new ByteReader(is, 1024);
+        InputStreamTokenizer reader = new InputStreamTokenizer(is, 1024);
         byte[] buffer = new byte[20];
 
         int count = reader.readUntil("xxx".getBytes(), buffer);
@@ -89,7 +91,7 @@ public class ByteReaderTest {
     @Test
     public void should_find_sequence_overlapping_itself_and_block_boundary() throws IOException {
         InputStream is = new ByteArrayInputStream("xxxxxxxx".getBytes());
-        ByteReader reader = new ByteReader(is, 4);
+        InputStreamTokenizer reader = new InputStreamTokenizer(is, 4);
         byte[] buffer = new byte[20];
 
         int count = reader.readUntil("xxx".getBytes(), buffer);
@@ -109,7 +111,7 @@ public class ByteReaderTest {
     @Test
     public void should_find_sequence_overlapping_block_boundary() throws IOException {
         InputStream is = new ByteArrayInputStream("abcxyzdef".getBytes());
-        ByteReader reader = new ByteReader(is, 4);
+        InputStreamTokenizer reader = new InputStreamTokenizer(is, 4);
         byte[] buffer = new byte[20];
 
         int count = reader.readUntil("xyz".getBytes(), buffer);
@@ -124,7 +126,7 @@ public class ByteReaderTest {
     @Test
     public void should_throw_if_buffer_too_small() throws IOException {
         InputStream is = new ByteArrayInputStream("abcxyzabc".getBytes());
-        ByteReader reader = new ByteReader(is, 4);
+        InputStreamTokenizer reader = new InputStreamTokenizer(is, 4);
         byte[] buffer = new byte[2];
 
         try {
@@ -145,7 +147,7 @@ public class ByteReaderTest {
     @Test
     public void should_read_entire_buffer_if_delimiter_not_found() throws IOException {
         InputStream is = new ByteArrayInputStream("abcdef".getBytes());
-        ByteReader reader = new ByteReader(is, 4);
+        InputStreamTokenizer reader = new InputStreamTokenizer(is, 4);
         byte[] buffer = new byte[20];
 
         int count = reader.readUntil("123".getBytes(), buffer);

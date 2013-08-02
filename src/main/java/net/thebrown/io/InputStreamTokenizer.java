@@ -1,7 +1,9 @@
+package net.thebrown.io;
+
 import java.io.IOException;
 import java.io.InputStream;
 
-public class ByteReader {
+public class InputStreamTokenizer {
     private final InputStream inputStream;
     private final int preferredReadSize;
 
@@ -14,7 +16,7 @@ public class ByteReader {
 
     private boolean invalid;
 
-    public ByteReader(InputStream inputStream, int preferredReadSize) {
+    public InputStreamTokenizer(InputStream inputStream, int preferredReadSize) {
         this.inputStream = inputStream;
         this.preferredReadSize = preferredReadSize;
     }
