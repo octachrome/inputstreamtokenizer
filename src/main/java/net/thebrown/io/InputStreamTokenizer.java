@@ -46,11 +46,13 @@ public class InputStreamTokenizer {
                     }
                     return bytesRead;
                 }
-                if (bytesRead >= buffer.length) {
-                    invalid = true;
-                    throw new IllegalArgumentException("Buffer is not big enough");
+                if (buffer != null) {
+                    if (bytesRead >= buffer.length) {
+                        invalid = true;
+                        throw new IllegalArgumentException("Buffer is not big enough");
+                    }
+                    buffer[bytesRead] = block[blockOffset];
                 }
-                buffer[bytesRead] = block[blockOffset];
                 bytesRead++;
                 blockOffset++;
             }

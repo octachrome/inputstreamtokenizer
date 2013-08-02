@@ -181,6 +181,20 @@ public class InputStreamTokenizerTest {
         assertThat("expected eof", count, is(-1));
     }
 
+    @Test
+    public void should_ignore_a_null_buffer() throws IOException {
+        InputStream is = new ByteArrayInputStream("abcxdef".getBytes());
+        InputStreamTokenizer reader = new InputStreamTokenizer(is, 1024);
+
+        int count = reader.readUntil("x".getBytes(), null);
+        assertThat("expected to read 3 bytes", count, is(3));
+
+        byte[] buffer = new byte[20];
+        count = reader.readUntil("x".getBytes(), buffer);
+        assertThat("expected to read 3 bytes", count, is(3));
+        assertThat("expected buffer to contain 'def'", buffer, startsWith("def".getBytes()));
+    }
+
     public static Matcher<byte[]> startsWith(final byte[] prefix) {
         return new BaseMatcher<byte[]>() {
             @Override
