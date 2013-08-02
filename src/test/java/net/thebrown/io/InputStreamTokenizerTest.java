@@ -17,7 +17,7 @@ public class InputStreamTokenizerTest {
     @Test
     public void should_find_delimiter_at_start() throws IOException {
         InputStream is = new ByteArrayInputStream("testxabc".getBytes());
-        InputStreamTokenizer reader = new InputStreamTokenizer(is, 1024);
+        InputStreamTokenizer reader = new InputStreamTokenizer(is);
         byte[] buffer = new byte[20];
         int count = reader.readUntil("test".getBytes(), buffer);
         assertThat("expected to read 0 bytes", count, is(0));
@@ -26,7 +26,7 @@ public class InputStreamTokenizerTest {
     @Test
     public void should_read_to_end_with_missing_delimiter() throws IOException {
         InputStream is = new ByteArrayInputStream("test".getBytes());
-        InputStreamTokenizer reader = new InputStreamTokenizer(is, 1024);
+        InputStreamTokenizer reader = new InputStreamTokenizer(is);
         byte[] buffer = new byte[20];
 
         int count = reader.readUntil("abc".getBytes(), buffer);
@@ -40,7 +40,7 @@ public class InputStreamTokenizerTest {
     @Test
     public void should_find_delimiter_mid_block() throws IOException {
         InputStream is = new ByteArrayInputStream("testxabc".getBytes());
-        InputStreamTokenizer reader = new InputStreamTokenizer(is, 1024);
+        InputStreamTokenizer reader = new InputStreamTokenizer(is);
         byte[] buffer = new byte[20];
         int count = reader.readUntil("x".getBytes(), buffer);
         assertThat("expected to read 4 bytes", count, is(4));
@@ -80,7 +80,7 @@ public class InputStreamTokenizerTest {
     @Test
     public void should_find_delimiter_twice_within_block() throws IOException {
         InputStream is = new ByteArrayInputStream("testxabcx".getBytes());
-        InputStreamTokenizer reader = new InputStreamTokenizer(is, 1024);
+        InputStreamTokenizer reader = new InputStreamTokenizer(is);
         byte[] buffer = new byte[20];
 
         int count = reader.readUntil("x".getBytes(), buffer);
@@ -95,7 +95,7 @@ public class InputStreamTokenizerTest {
     @Test
     public void should_find_delimiter_overlapping_itself() throws IOException {
         InputStream is = new ByteArrayInputStream("xxxxxx".getBytes());
-        InputStreamTokenizer reader = new InputStreamTokenizer(is, 1024);
+        InputStreamTokenizer reader = new InputStreamTokenizer(is);
         byte[] buffer = new byte[20];
 
         int count = reader.readUntil("xxx".getBytes(), buffer);
@@ -184,7 +184,7 @@ public class InputStreamTokenizerTest {
     @Test
     public void should_ignore_a_null_buffer() throws IOException {
         InputStream is = new ByteArrayInputStream("abcxdef".getBytes());
-        InputStreamTokenizer reader = new InputStreamTokenizer(is, 1024);
+        InputStreamTokenizer reader = new InputStreamTokenizer(is);
 
         int count = reader.readUntil("x".getBytes(), null);
         assertThat("expected to read 3 bytes", count, is(3));

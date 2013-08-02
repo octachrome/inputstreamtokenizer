@@ -3,7 +3,12 @@ package net.thebrown.io;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * Efficiently scans an input stream for a series of delimiters, extracting the bytes in between.
+ */
 public class InputStreamTokenizer {
+    private static final int DEFAULT_READ_SIZE = 1024;
+
     private final InputStream inputStream;
     private final int preferredReadSize;
 
@@ -15,6 +20,10 @@ public class InputStreamTokenizer {
     private int prefetchLength;
 
     private boolean invalid;
+
+    public InputStreamTokenizer(InputStream inputStream) {
+        this(inputStream, DEFAULT_READ_SIZE);
+    }
 
     public InputStreamTokenizer(InputStream inputStream, int preferredReadSize) {
         this.inputStream = inputStream;
