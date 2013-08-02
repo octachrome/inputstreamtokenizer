@@ -15,7 +15,30 @@ import static org.junit.Assert.fail;
 
 public class InputStreamTokenizerTest {
     @Test
-    public void should_find_sequence_mid_block() throws IOException {
+    public void should_find_delimiter_at_start() throws IOException {
+        InputStream is = new ByteArrayInputStream("testxabc".getBytes());
+        InputStreamTokenizer reader = new InputStreamTokenizer(is, 1024);
+        byte[] buffer = new byte[20];
+        int count = reader.readUntil("test".getBytes(), buffer);
+        assertThat("expected to read 0 bytes", count, is(0));
+    }
+
+    @Test
+    public void should_read_to_end_with_missing_delimiter() throws IOException {
+        InputStream is = new ByteArrayInputStream("test".getBytes());
+        InputStreamTokenizer reader = new InputStreamTokenizer(is, 1024);
+        byte[] buffer = new byte[20];
+
+        int count = reader.readUntil("abc".getBytes(), buffer);
+        assertThat("expected to read 4 bytes", count, is(4));
+        assertThat("expected buffer to contain 'test'", buffer, startsWith("test".getBytes()));
+
+        count = reader.readUntil("abc".getBytes(), buffer);
+        assertThat("expected eof", count, is(-1));
+    }
+
+    @Test
+    public void should_find_delimiter_mid_block() throws IOException {
         InputStream is = new ByteArrayInputStream("testxabc".getBytes());
         InputStreamTokenizer reader = new InputStreamTokenizer(is, 1024);
         byte[] buffer = new byte[20];
@@ -25,7 +48,7 @@ public class InputStreamTokenizerTest {
     }
 
     @Test
-    public void should_find_sequence_at_block_end() throws IOException {
+    public void should_find_delimiter_at_block_end() throws IOException {
         InputStream is = new ByteArrayInputStream("tesxtabc".getBytes());
         InputStreamTokenizer reader = new InputStreamTokenizer(is, 4);
         byte[] buffer = new byte[20];
@@ -35,7 +58,7 @@ public class InputStreamTokenizerTest {
     }
 
     @Test
-    public void should_find_sequence_at_second_block_start() throws IOException {
+    public void should_find_delimiter_at_second_block_start() throws IOException {
         InputStream is = new ByteArrayInputStream("testxabc".getBytes());
         InputStreamTokenizer reader = new InputStreamTokenizer(is, 4);
         byte[] buffer = new byte[20];
@@ -45,7 +68,7 @@ public class InputStreamTokenizerTest {
     }
 
     @Test
-    public void should_find_sequence_at_second_block_end() throws IOException {
+    public void should_find_delimiter_at_second_block_end() throws IOException {
         InputStream is = new ByteArrayInputStream("testabcx".getBytes());
         InputStreamTokenizer reader = new InputStreamTokenizer(is, 4);
         byte[] buffer = new byte[20];
@@ -55,7 +78,7 @@ public class InputStreamTokenizerTest {
     }
 
     @Test
-    public void should_find_sequence_twice_within_block() throws IOException {
+    public void should_find_delimiter_twice_within_block() throws IOException {
         InputStream is = new ByteArrayInputStream("testxabcx".getBytes());
         InputStreamTokenizer reader = new InputStreamTokenizer(is, 1024);
         byte[] buffer = new byte[20];
@@ -70,7 +93,7 @@ public class InputStreamTokenizerTest {
     }
 
     @Test
-    public void should_find_sequence_overlapping_itself() throws IOException {
+    public void should_find_delimiter_overlapping_itself() throws IOException {
         InputStream is = new ByteArrayInputStream("xxxxxx".getBytes());
         InputStreamTokenizer reader = new InputStreamTokenizer(is, 1024);
         byte[] buffer = new byte[20];
@@ -89,7 +112,7 @@ public class InputStreamTokenizerTest {
     }
 
     @Test
-    public void should_find_sequence_overlapping_itself_and_block_boundary() throws IOException {
+    public void should_find_delimiter_overlapping_itself_and_block_boundary() throws IOException {
         InputStream is = new ByteArrayInputStream("xxxxxxxx".getBytes());
         InputStreamTokenizer reader = new InputStreamTokenizer(is, 4);
         byte[] buffer = new byte[20];
@@ -109,7 +132,7 @@ public class InputStreamTokenizerTest {
     }
 
     @Test
-    public void should_find_sequence_overlapping_block_boundary() throws IOException {
+    public void should_find_delimiter_overlapping_block_boundary() throws IOException {
         InputStream is = new ByteArrayInputStream("abcxyzdef".getBytes());
         InputStreamTokenizer reader = new InputStreamTokenizer(is, 4);
         byte[] buffer = new byte[20];
